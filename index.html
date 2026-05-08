@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hilina Gebre - Application Security</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0e17;
+      --bg2: #0f1623;
+      --card: #131c2e;
+      --border: #1e2d47;
+      --accent: #00d4ff;
+      --accent2: #ff4d6d;
+      --green: #00ff9d;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --font-mono: 'Space Mono', monospace;
+      --font-body: 'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 3rem;
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8rem 3rem 4rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hero-tag {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .hero-tag::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--accent);
+    }
+
+    .hero h1 {
+      font-family: var(--font-mono);
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 700;
+      line-height: 1.05;
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hero h1 .name { color: var(--text); }
+    .hero h1 .accent { color: var(--accent); }
+
+    .hero-subtitle {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin-bottom: 2.5rem;
+      font-weight: 300;
+    }
+
+    .hero-subtitle span { color: var(--green); font-weight: 500; }
+
+    .hero-certs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+    }
+
+    .cert-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.4rem 0.9rem;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      border-radius: 2px;
+      background: rgba(0, 212, 255, 0.05);
+    }
+
+    .cert-badge.green {
+      border-color: var(--green);
+      color: var(--green);
+      background: rgba(0, 255, 157, 0.05);
+    }
+
+    .cert-badge.pending {
+      border-color: var(--muted);
+      color: var(--muted);
+      background: transparent;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.85rem 1.8rem;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+    }
+
+    .btn-primary:hover {
+      background: #fff;
+      transform: translateY(-2px);
+    }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* SECTIONS */
+    section {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 5rem 3rem;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: var(--font-mono);
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 700;
+      margin-bottom: 3rem;
+      color: var(--text);
+    }
+
+    /* ABOUT */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .about-text p {
+      color: var(--muted);
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .about-text p span { color: var(--text); }
+
+    .about-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* SKILLS */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .skill-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .skill-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .skill-card-title {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .skill-card-title::before {
+      content: '//';
+      color: var(--muted);
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .skill-tag {
+      font-size: 0.8rem;
+      padding: 0.3rem 0.7rem;
+      background: rgba(0, 212, 255, 0.07);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+      color: var(--text);
+      border-radius: 2px;
+    }
+
+    /* FINDINGS */
+    .findings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .finding-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent2);
+      border-radius: 4px;
+      padding: 1.5rem 1.75rem;
+      text-decoration: none;
+      display: block;
+      transition: all 0.2s;
+    }
+
+    .finding-card.medium { border-left-color: #f59e0b; }
+    .finding-card:hover {
+      border-color: var(--accent);
+      border-left-color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .finding-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+
+    .finding-title {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .severity-badge {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 2px;
+      font-weight: 700;
+    }
+
+    .sev-critical {
+      background: rgba(255, 77, 109, 0.15);
+      color: var(--accent2);
+      border: 1px solid rgba(255, 77, 109, 0.3);
+    }
+
+    .sev-medium {
+      background: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .finding-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+    }
+
+    .finding-meta {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .finding-meta span {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    .finding-meta span strong {
+      color: var(--accent);
+      font-weight: 400;
+    }
+
+    /* CONTACT */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .contact-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .contact-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .contact-icon {
+      font-size: 1.5rem;
+      line-height: 1;
+    }
+
+    .contact-info-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.2rem;
+    }
+
+    .contact-info-value {
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    /* FOOTER */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 2rem 3rem;
+      text-align: center;
+    }
+
+    footer p {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    footer span { color: var(--accent); }
+
+    /* DIVIDER */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-tag { animation: fadeUp 0.6s ease both; }
+    .hero h1 { animation: fadeUp 0.6s 0.1s ease both; }
+    .hero-subtitle { animation: fadeUp 0.6s 0.2s ease both; }
+    .hero-certs { animation: fadeUp 0.6s 0.3s ease both; }
+    .hero-btns { animation: fadeUp 0.6s 0.4s ease both; }
+
+    /* CURSOR BLINK */
+    .cursor {
+      display: inline-block;
+      width: 3px;
+      height: 1em;
+      background: var(--accent);
+      margin-left: 4px;
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1rem; }
+      section, .hero { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .about-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">HG.sec</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#findings">Findings</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Application Security Engineer</div>
+  <h1>
+    <span class="name">Hilina Gebre</span><br>
+    <span class="accent">Breaking Apps.</span><br>
+    <span style="color: var(--green);">Securing Systems.</span><span class="cursor"></span>
+  </h1>
+  <p class="hero-subtitle">
+    Cybersecurity professional with <span>3+ years</span> of enterprise AppSec experience.
+    Specializing in vulnerability research, secure code review, and OWASP Top 10.
+    Based in <span>Alexandria, VA</span> - U.S. Citizen.
+  </p>
+  <div class="hero-certs">
+    <span class="cert-badge green">ISC2 CC</span>
+    <span class="cert-badge">CompTIA CySA+</span>
+    <span class="cert-badge pending">PenTest+ - In Progress</span>
+    <span class="cert-badge pending">MS Cybersecurity Engineering - WGU</span>
+  </div>
+  <div class="hero-btns">
+    <a href="#findings" class="btn btn-primary">View Findings</a>
+    <a href="https://github.com/Hilina-Git/security-portfolio" target="_blank" class="btn btn-outline">GitHub Portfolio</a>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">01 - About</div>
+  <div class="section-title">Who I Am</div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>I am an Application Security Engineer with a background in <span>secure software development</span> at Tata Consultancy Services, where I spent 3+ years remediating vulnerabilities, conducting secure code reviews, and enforcing SDLC security standards across legacy Java and Spring Boot enterprise applications.</p>
+      <p>My approach is unique - I think like a <span>developer and an attacker</span>. I can read and write production code, which means I don't just find vulnerabilities - I understand exactly how to fix them at the code level.</p>
+      <p>I am currently completing my <span>MS in Cybersecurity Engineering</span> at Western Governors University and building hands-on offensive security skills through web application penetration testing research.</p>
+    </div>
+    <div class="about-stats">
+      <div class="stat-row">
+        <span class="stat-label">Experience</span>
+        <span class="stat-value">3+ Years AppSec</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Education</span>
+        <span class="stat-value">BS GMU / MS WGU</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Location</span>
+        <span class="stat-value">Alexandria, VA</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Clearance Eligible</span>
+        <span class="stat-value">U.S. Citizen</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Primary Focus</span>
+        <span class="stat-value">AppSec / Web Pentesting</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-label">02 - Skills</div>
+  <div class="section-title">Technical Expertise</div>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-card-title">Security Tools</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Burp Suite</span>
+        <span class="skill-tag">SonarQube</span>
+        <span class="skill-tag">OWASP ZAP</span>
+        <span class="skill-tag">SAST</span>
+        <span class="skill-tag">Vulnerability Scanning</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-card-title">Frameworks</div>
+      <div class="skill-tags">
+        <span class="skill-tag">OWASP Top 10</span>
+        <span class="skill-tag">NIST CSF</span>
+        <span class="skill-tag">NIST SP 800-53</span>
+        <span class="skill-tag">Secure SDLC</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-card-title">Languages</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Java</span>
+        <span class="skill-tag">Python</span>
+        <span class="skill-tag">SQL</span>
+        <span class="skill-tag">Spring Boot</span>
+        <span class="skill-tag">JUnit</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-card-title">Vulnerability Classes</div>
+      <div class="skill-tags">
+        <span class="skill-tag">SQL Injection</span>
+        <span class="skill-tag">Auth Bypass</span>
+        <span class="skill-tag">Secure Code Review</span>
+        <span class="skill-tag">Input Validation</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-card-title">Cloud and DevOps</div>
+      <div class="skill-tags">
+        <span class="skill-tag">AWS</span>
+        <span class="skill-tag">Agile</span>
+        <span class="skill-tag">SAFe</span>
+        <span class="skill-tag">PostgreSQL</span>
+      </div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-card-title">Certifications</div>
+      <div class="skill-tags">
+        <span class="skill-tag">ISC2 CC</span>
+        <span class="skill-tag">CompTIA CySA+</span>
+        <span class="skill-tag">PenTest+ (In Progress)</span>
+        <span class="skill-tag">SAFe 5 Agilist</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- FINDINGS -->
+<section id="findings">
+  <div class="section-label">03 - Research</div>
+  <div class="section-title">Vulnerability Findings</div>
+  <div class="findings-list">
+
+    <a href="https://github.com/Hilina-Git/security-portfolio/blob/main/writeups/sqli-login-bypass.md"
+       target="_blank" class="finding-card">
+      <div class="finding-header">
+        <div class="finding-title">SQL Injection - Authentication Bypass via Login Form</div>
+        <span class="severity-badge sev-critical">Critical</span>
+      </div>
+      <p class="finding-desc">Exploited unsanitized username input to comment out password verification logic using Burp Suite, gaining full administrator access without valid credentials.</p>
+      <div class="finding-meta">
+        <span><strong>CVSS:</strong> 9.8</span>
+        <span><strong>Tool:</strong> Burp Suite</span>
+        <span><strong>Class:</strong> SQLi / Auth Bypass</span>
+        <span><strong>Date:</strong> May 2026</span>
+      </div>
+    </a>
+
+    <a href="https://github.com/Hilina-Git/security-portfolio/blob/main/writeups/sqli-where-clause.md"
+       target="_blank" class="finding-card medium">
+      <div class="finding-header">
+        <div class="finding-title">SQL Injection - Hidden Data Retrieval via WHERE Clause</div>
+        <span class="severity-badge sev-medium">Medium</span>
+      </div>
+      <p class="finding-desc">Manipulated the category filter parameter to bypass the released=1 condition, exposing hidden and unreleased product records through URL injection.</p>
+      <div class="finding-meta">
+        <span><strong>Tool:</strong> Browser</span>
+        <span><strong>Class:</strong> SQLi / Data Exposure</span>
+        <span><strong>Date:</strong> May 2026</span>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-label">04 - Contact</div>
+  <div class="section-title">Get In Touch</div>
+  <div class="contact-grid">
+    <a href="mailto:hilina36@gmail.com" class="contact-card">
+      <div class="contact-icon">✉</div>
+      <div>
+        <div class="contact-info-label">Email</div>
+        <div class="contact-info-value">hilina36@gmail.com</div>
+      </div>
+    </a>
+    <a href="https://linkedin.com/in/hilina-gebre" target="_blank" class="contact-card">
+      <div class="contact-icon">in</div>
+      <div>
+        <div class="contact-info-label">LinkedIn</div>
+        <div class="contact-info-value">linkedin.com/in/hilina-gebre</div>
+      </div>
+    </a>
+    <a href="https://github.com/Hilina-Git" target="_blank" class="contact-card">
+      <div class="contact-icon">⌥</div>
+      <div>
+        <div class="contact-info-label">GitHub</div>
+        <div class="contact-info-value">github.com/Hilina-Git</div>
+      </div>
+    </a>
+    <a href="tel:7035991708" class="contact-card">
+      <div class="contact-icon">☎</div>
+      <div>
+        <div class="contact-info-label">Phone</div>
+        <div class="contact-info-value">703-599-1708</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <p>Built by <span>Hilina Gebre</span> - Application Security Engineer - Alexandria, VA - 2026</p>
+</footer>
+
+</body>
+</html>
